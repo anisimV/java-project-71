@@ -2,6 +2,8 @@ plugins {
     id("application")
     id("java")
     id("checkstyle") // Подключаем Checkstyle Plugin
+
+    id("org.sonarqube") version "6.0.1.5171"
 }
 
 group = "hexlet.code"
@@ -23,6 +25,14 @@ dependencies {
 
 application {
     mainClass.set("hexlet.code.App")
+}
+
+sonar {
+    properties {
+        property("sonar.projectKey", "anisimV_java-project-71")
+        property("sonar.organization", "anisimv")
+        property("sonar.host.url", "https://sonarcloud.io")
+    }
 }
 
 // Настроим путь к checkstyle.xml
