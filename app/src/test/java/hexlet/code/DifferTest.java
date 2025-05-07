@@ -23,4 +23,12 @@ class DifferTest {
         String result = Differ.generate(file1, file2);
         assertEquals(EXPECTED_RESULT.trim(), result.trim());
     }
+
+    @Test
+    void testGenerateFlatYaml() throws Exception {
+        String file1 = "file1.yml";
+        String file2 = "file2.yml";
+        String result = Differ.generate(file1, file2);
+        assertEquals(EXPECTED_RESULT.trim(), result.trim());
+    }
 }
