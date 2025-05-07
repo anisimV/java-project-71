@@ -1,29 +1,31 @@
 package hexlet.code;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
-import java.io.File;
-import java.nio.file.Files;
 import java.util.Map;
 
 public class Parser {
+    private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
+    private static final ObjectMapper YAML_MAPPER = new ObjectMapper(new YAMLFactory());
 
-    public static Map<String, Object> parse(String resourcePath) throws Exception {
-        ClassLoader classLoader = Parser.class.getClassLoader();
-        File file = new File(classLoader.getResource(resourcePath).getFile());
+    public static Map<String, Object> parse(String content, String format) throws Exception {
+        return switch (format) {
+            case "json" -> parseJson(content);
+            case "yaml", "yml" -> parseYaml(content);
+            default -> throw new Exception("Unsupported file format: " + format);
+        };
+    }
 
-        String content = Files.readString(file.toPath());
+    private static Map<String, Object> parseJson(String content) throws Exception {
+        return JSON_MAPPER.readValue(content, new TypeReference<>() {
+        });
+    }
 
-        // Определяем формат по расширению файла
-        if (resourcePath.endsWith(".json")) {
-            ObjectMapper mapper = new ObjectMapper();
-            return mapper.readValue(content, Map.class);
-        } else if (resourcePath.endsWith(".yml") || resourcePath.endsWith(".yaml")) {
-            ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-            return mapper.readValue(content, Map.class);
-        } else {
-            throw new IllegalArgumentException("Unsupported file type");
-        }
+    private static Map<String, Object> parseYaml(String content) throws Exception {
+        return YAML_MAPPER.readValue(content, new TypeReference<>() {
+        });
     }
 }
+

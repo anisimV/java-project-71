@@ -1,43 +1,38 @@
 package hexlet.code;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.TreeSet;
 
 public class Differ {
+    public static String generate(String filepath1, String filepath2, String format) throws Exception {
+        String content1 = readFile(filepath1);
+        String content2 = readFile(filepath2);
 
-    public static String generate(String filePath1, String filePath2) throws Exception {
-        Map<String, Object> data1 = Parser.parse(filePath1);
-        Map<String, Object> data2 = Parser.parse(filePath2);
+        String format1 = getFileType(filepath1);
+        String format2 = getFileType(filepath2);
 
-        // создаем отсортированное множество всех ключей из обоих файлов
-        Set<String> allKeys = new TreeSet<>();
-        allKeys.addAll(data1.keySet()); // добавляем ключи из первого файла
-        allKeys.addAll(data2.keySet()); // добавляем ключи из второго файла
+        Map<String, Object> parseFile1 = Parser.parse(content1, format1);
+        Map<String, Object> parseFile2 = Parser.parse(content2, format2);
 
-        // строим строку-результат с помощью StringBuilder
-        StringBuilder result = new StringBuilder("{\n");
+        List<Map<String, Object>> result = Comparator.compare(parseFile1, parseFile2);
 
-        // проходим по каждому ключу в алфавитном порядке
-        for (String key : allKeys) {
-            Object val1 = data1.get(key); // значение из первого файла (может быть null)
-            Object val2 = data2.get(key); // значение из второго файла (может быть null)
+        return Formatter.format(result, format);
+    }
 
-            // если ключ отсутствует во втором файле - он был удалён
-            if (!data2.containsKey(key)) {
-                result.append("  - ").append(key).append(": ").append(val1).append("\n");
-            } else if (!data1.containsKey(key)) { // если ключ отсутствует в первом файле - он был добавлен
-                result.append("  + ").append(key).append(": ").append(val2).append("\n");
-            } else if (Objects.equals(val1, val2)) { // если ключи равны - ключ не изменяется
-                result.append("    ").append(key).append(": ").append(val1).append("\n");
-            } else { // если ключи разные - ключ был изменён
-                result.append("  - ").append(key).append(": ").append(val1).append("\n");
-                result.append("  + ").append(key).append(": ").append(val2).append("\n");
-            }
-        }
+    public static String generate(String filepath1, String filepath2) throws Exception {
+        return generate(filepath1, filepath2, "stylish");
+    }
 
-        result.append("}");
-        return result.toString();
+    public static String readFile(String filePath) throws Exception {
+        Path path = Paths.get(filePath).toAbsolutePath().normalize();
+        return Files.readString(path).trim();
+    }
+
+    private static String getFileType(String filePath) {
+        String[] pathArray = filePath.split("\\.");
+        return pathArray[pathArray.length - 1];
     }
 }
